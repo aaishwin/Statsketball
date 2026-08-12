@@ -112,11 +112,11 @@ For each of the six archetype dimensions, the composite is the mean of its const
 
 $$
 \begin{aligned}
-\text{Scoring}_p &= \frac{1}{|\mathcal{S}|} \sum_{f \in \mathcal{S}} z_{f,p} \quad \text{where } \mathcal{S} = \{\text{pts, usg\%, per, fg_per_game, fga_per_game}\} \\
-\text{Playmaking}_p &= \frac{1}{|\mathcal{P}|} \sum_{f \in \mathcal{P}} z_{f,p} \quad \text{where } \mathcal{P} = \{\text{ast_per_game, ast\%, tov\%, pts_generated_by_asts}\} \\
+\text{Scoring}_p &= \frac{1}{|\mathcal{S}|} \sum_{f \in \mathcal{S}} z_{f,p} \quad \text{where } \mathcal{S} = \{\text{pts, usg\%, per, fg\_per\_game, fga\_per\_game}\} \\
+\text{Playmaking}_p &= \frac{1}{|\mathcal{P}|} \sum_{f \in \mathcal{P}} z_{f,p} \quad \text{where } \mathcal{P} = \{\text{ast\_per\_game, ast\%, tov\%, pts\_generated\_by\_asts}\} \\
 \text{Defense}_p &= \frac{1}{|\mathcal{D}|} \sum_{f \in \mathcal{D}} z_{f,p} \quad \text{where } \mathcal{D} = \{\text{stl\%, blk\%, dbpm, dws}\} \\
-\text{Rebounding}_p &= \frac{1}{|\mathcal{R}|} \sum_{f \in \mathcal{R}} z_{f,p} \quad \text{where } \mathcal{R} = \{\text{orb\%, drb\%, trb\%, orb_per_game, drb_per_game, trb_per_game}\} \\
-\text{Spacing}_p &= \frac{1}{|\mathcal{SP}|} \sum_{f \in \mathcal{SP}} z_{f,p} \quad \text{where } \mathcal{SP} = \{\text{x3p_ar, avg_dist_fga, 3p\%}\} \\
+\text{Rebounding}_p &= \frac{1}{|\mathcal{R}|} \sum_{f \in \mathcal{R}} z_{f,p} \quad \text{where } \mathcal{R} = \{\text{orb\%, drb\%, trb\%, orb\_per\_game, drb\_per\_game, trb\_per\_game}\} \\
+\text{Spacing}_p &= \frac{1}{|\mathcal{SP}|} \sum_{f \in \mathcal{SP}} z_{f,p} \quad \text{where } \mathcal{SP} = \{\text{x3p\_ar, avg\_dist\_fga, 3p\%}\} \\
 \text{Versatility}_p &= \frac{1}{|\mathcal{V}|} \sum_{f \in \mathcal{V}} z_{f,p} \quad \text{where } \mathcal{V} = \{\text{pg\%, sg\%, sf\%, pf\%, c\%}\}
 \end{aligned}
 $$
@@ -1144,4 +1144,3 @@ crazy for their time, however compared to today's standards, they are below aver
 ​
  
  
-
