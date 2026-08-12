@@ -9,7 +9,7 @@ I used 8 different player datasets from kaggle. Those datasets are: Advanced sta
 I then used Pandas to consolidate, and manipulate the datasets. 
 
 
-I used FAISS (Facebook AI Similarity Search), to allow 
+I used FAISS (Facebook AI Similarity Search), to allow users to search for players, and find the most similar ones. 
 
 
 I also created interactive data visualization using Plotly, where users can view a similarity graph of a player, and view his nearest neighbours. Users can also click on the player to create more nodes and edges. 
