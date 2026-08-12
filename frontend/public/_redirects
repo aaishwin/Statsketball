@@ -1,5 +1,0 @@
-# Proxy API calls to the FastAPI/FAISS backend on Render.
-# Next.js copies public/ into the publish directory and Netlify reads
-# `_redirects` at deploy time. `200!` makes this a force proxy rewrite
-# (transparent to the browser — no CORS involved).
-/api/v1/*  https://statsketball-api.onrender.com/api/v1/:splat  200!
