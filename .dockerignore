@@ -1,0 +1,23 @@
+# Keep the build context small (frontend has 1.9GB of node_modules)
+frontend/
+tests/
+docs/
+.git/
+
+# Raw Kaggle CSVs — not needed for serving
+data/nba-aba-baa-stats/
+
+# Large pipeline visualization outputs — not served by the API
+output_players/*.html
+output_players/similarity_matrix.npy
+
+# VCS / tooling
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+DESIGN.md
+PRODUCT.md
+README.md

@@ -65,3 +65,17 @@ DESIGN.md
 PRODUCT.md
 DESIGN.md
 PRODUCT.md
+
+# ── Deployment artifacts — re-included so the API Docker image can be built
+# from a git clone (Render/Netlify build servers don't have local files).
+# Only the small serving artifacts are committed; the big HTML/NPY outputs
+# and raw CSVs stay ignored.
+!/faiss_output/
+/faiss_output/*
+!/faiss_output/faiss_player.index
+!/faiss_output/faiss_player_metadata.json
+!/output_players/
+/output_players/*
+!/output_players/players_with_archetypes.csv
+!/output_players/cluster_profiles.json
+!backend/data/nba_player_headshots.json
