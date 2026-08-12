@@ -1,0 +1,964 @@
+@import "tailwindcss";
+
+/*
+ * ═══════════════════════════════════════════════════════════════
+ * SIMILARITY — NBA Player Comparison Engine
+ * Design System v3: Editorial Luxury · Asymmetrical Bento
+ *
+ * Vibe:       Deep charcoal + CSS film-grain texture. No gradients.
+ *             Warm grey glass cards with heavy backdrop-blur
+ *             Wide geometric Grotesk typography (Geist)
+ *
+ * Archetype:  Editorial Luxury (dark espresso interpretation)
+ * Layout:     Asymmetrical Bento — variable card sizes, no monotonous grids
+ *
+ * Primary:    Amber (40°) — NBA energy, comparison, match, the ONLY accent
+ * Surface:    Glass with warm-grey undertone, heavy blur, hairline borders
+ * Texture:    Fixed noise/grain overlay at 3% opacity. Zero gradients.
+ *
+ * NO PURPLE. NO VIOLET. NO GRADIENTS. NO RADIAL ORBS.
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+/* ── Design Tokens ── */
+@theme inline {
+  /* Background — pure near-black. ZERO hue tint. */
+  --color-bg:             oklch(0.07 0 0);
+
+  /* Glass surfaces — frosted, warm-grey undertone, heavy blur */
+  --color-glass:          oklch(0.13 0.004 85 / 0.70);
+  --color-glass-hover:    oklch(0.16 0.005 85 / 0.78);
+  --color-glass-active:   oklch(0.20 0.006 85 / 0.82);
+  --color-glass-solid:    oklch(0.14 0.005 85);
+
+  /* Solid surfaces — when glass is inappropriate (data, charts) */
+  --color-surface:        oklch(0.12 0.003 85);
+  --color-surface-raised: oklch(0.15 0.004 85);
+  --color-surface-overlay:oklch(0.09 0.002 85 / 0.94);
+
+  /* Ink — text hierarchy. All ≥4.5:1 against bg. Primary ≥12:1 */
+  --color-ink:            oklch(0.96 0 0);
+  --color-ink-soft:       oklch(0.76 0.002 85);
+  --color-ink-muted:      oklch(0.54 0.002 85);
+  --color-ink-disabled:   oklch(0.36 0.002 85);
+
+  /* Primary — amber/orange. The ONE accent. No purple exists. */
+  --color-primary:        oklch(0.65 0.20 40);
+  --color-primary-hover:  oklch(0.70 0.21 40);
+  --color-primary-active: oklch(0.58 0.17 40);
+  --color-primary-muted:  oklch(0.28 0.07 40);
+  --color-primary-ambient: oklch(0.65 0.20 40 / 0.22);
+
+  /* Semantic */
+  --color-success:        oklch(0.62 0.16 145);
+  --color-warning:        oklch(0.70 0.17 85);
+  --color-danger:         oklch(0.53 0.20 25);
+
+  /* Borders — hairline, never paired with box-shadow decoration */
+  --color-border:         oklch(1 0 0 / 0.07);
+  --color-border-strong:  oklch(1 0 0 / 0.12);
+  --color-border-glass:   oklch(1 0 0 / 0.08);
+  --color-border-focus:   oklch(0.65 0.20 40 / 0.55);
+
+  /* Chart family — HDBSCAN archetypes and UMAP scatterplots only.
+     Fixed lightness/chroma band, hue is the only variable.
+     Amber stays out of this set on purpose. */
+  --color-chart-1:        oklch(0.70 0.10 200); /* steel  */
+  --color-chart-2:        oklch(0.70 0.09 165); /* teal   */
+  --color-chart-3:        oklch(0.68 0.10 230); /* indigo */
+  --color-chart-4:        oklch(0.70 0.11 330); /* rose   */
+  --color-chart-5:        oklch(0.72 0.07 65);  /* olive  */
+
+  /* Typography — Geist (Vercel premium geometric Grotesk).
+     Font variables are set on <html> by next/font via the `geist` package. */
+  --font-sans:            var(--font-geist-sans), 'Geist Fallback', system-ui, -apple-system, sans-serif;
+  --font-mono:            var(--font-geist-mono), 'Geist Mono Fallback', ui-monospace, 'SF Mono', monospace;
+
+  /* Radii — 20px ceiling per DESIGN.md anti-pattern */
+  --radius-sm:            6px;
+  --radius-md:            10px;
+  --radius-lg:            14px;
+  --radius-xl:            20px;
+  --radius-full:          9999px;
+
+  /* Glass blur */
+  --glass-blur:           24px;
+  --glass-blur-heavy:     40px;
+
+  /* Scoreboard numerals — tabular mono for match %, rank, deltas */
+  --scoreboard-size:      clamp(3rem, 8vw, 7rem);
+  --scoreboard-tracking:  -0.02em;
+
+  /* Display hero — Unseen-inspired confidence within DESIGN.md limits */
+  --display-size:         clamp(2.75rem, 6vw, 5rem);
+  --display-tracking:     -0.03em;
+}
+
+/* ── Base ── */
+html {
+  color-scheme: dark;
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+/* ── Court Atmosphere — particle field + vignette + grain (Amendment A) ──
+   1. Particle canvas (animated vector-space dots, rendered by <ParticleBackground />)
+   2. Vignette (radial spotlight, the one allowed gradient)
+   3. Film grain (feTurbulence, unchanged)
+   All pointer-events: none, z-index: 0, behind all content. */
+
+/* Layer 1: Particle canvas */
+.particle-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Layer 2: Vignette — spotlight effect (lighter center, darker edges) */
+.vignette-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 35%,
+    oklch(0.12 0.002 85 / 0.4) 0%,
+    transparent 50%,
+    oklch(0 0 0 / 0.6) 100%
+  );
+}
+
+/* Layer 3: Film grain — unchanged */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  opacity: 0.035;
+}
+
+/* ── Headline Ambient Glow — single allowed radial glow behind display headlines ──
+   ≤4% opacity in --primary. The headline is the focal point; a focal point
+   deserves focal lighting. One per page, behind the hero h1 only. */
+.headline-ambient {
+  position: relative;
+}
+.headline-ambient::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -10%;
+  width: 120%;
+  height: 140%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 600px 300px at 30% 40%,
+    oklch(0.65 0.20 40 / 0.04),
+    transparent 70%
+  );
+}
+
+/* ── Selection ── */
+::selection {
+  background: oklch(0.65 0.20 40 / 0.25);
+  color: var(--color-ink);
+}
+
+/* ── Focus ── */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Typography defaults ── */
+h1, h2, h3 {
+  text-wrap: balance;
+  letter-spacing: -0.02em;
+}
+
+p, li, blockquote {
+  text-wrap: pretty;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPONENT PRIMITIVES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Glass Panel — Double-Bezel Architecture ──
+   Outer shell (aluminum tray) → inner core (glass plate).
+   Never a flat card on the background. */
+
+.glass-outer {
+  background: oklch(1 0 0 / 0.04);
+  border: 1px solid oklch(1 0 0 / 0.06);
+  border-radius: 1.25rem;
+  padding: 1.5px;
+  position: relative;
+  /* Subtle ambient shadow only on the tray — never paired with border decoration */
+  box-shadow: 0 4px 24px oklch(0.05 0.002 85 / 0.55);
+}
+
+.glass-inner {
+  background: oklch(0.13 0.004 85 / 0.72);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid oklch(1 0 0 / 0.07);
+  border-radius: calc(1.25rem - 2px);
+  /* Inner highlight — light catch along the top edge */
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.06);
+  overflow: hidden;
+}
+
+/* Variant: elevated (hover state) */
+.glass-inner-elevated {
+  background: oklch(0.15 0.005 85 / 0.78);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid oklch(1 0 0 / 0.10);
+  border-radius: calc(1.25rem - 2px);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.08),
+    0 8px 32px oklch(0.05 0.002 85 / 0.60);
+  overflow: hidden;
+}
+
+/* Variant: heavy (dropdowns, overlays floating above content) */
+.glass-inner-heavy {
+  background: oklch(0.09 0.002 85 / 0.94);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid oklch(1 0 0 / 0.10);
+  border-radius: calc(1.25rem - 2px);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.08),
+    0 12px 40px oklch(0 0 0 / 0.65);
+  overflow: hidden;
+}
+
+/* ── Glass Panel (compact, single-layer for simple content) ── */
+.glass-panel {
+  background: oklch(0.13 0.004 85 / 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid oklch(1 0 0 / 0.07);
+  border-radius: 1rem;
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.05),
+    0 4px 16px oklch(0.05 0.002 85 / 0.50);
+}
+
+/* ── Secondary / Subtle Button ── */
+.btn-subtle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: oklch(1 0 0 / 0.06);
+  color: var(--color-ink-soft);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border: 1px solid oklch(1 0 0 / 0.08);
+  border-radius: 9999px;
+  padding: 9px 16px;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-subtle:hover {
+  background: oklch(1 0 0 / 0.10);
+  color: var(--color-ink);
+  border-color: oklch(1 0 0 / 0.14);
+}
+.btn-subtle:active {
+  transform: scale(0.98);
+}
+
+/* ── Filter Chip — DESIGN.md Filter Bar: transparent default,
+   --primary fill when active. Chips filter; they never sort. ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 5px 13px;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  user-select: none;
+  background: transparent;
+  color: var(--color-ink-muted);
+  border: 1px solid var(--color-border);
+  transition:
+    background 0.20s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.20s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.20s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.chip:hover {
+  color: var(--color-ink-soft);
+  border-color: var(--color-border-strong);
+}
+.chip:active {
+  transform: scale(0.97);
+}
+.chip-active,
+.chip-active:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: oklch(0.10 0.005 40);
+}
+
+/* ── Input Field — Glass, minimal ── */
+.input-glass {
+  width: 100%;
+  background: oklch(1 0 0 / 0.05);
+  border: 1px solid oklch(1 0 0 / 0.08);
+  border-radius: 9999px;
+  padding: 12px 18px;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--color-ink);
+  outline: none;
+  transition:
+    border-color 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.input-glass::placeholder {
+  color: var(--color-ink-muted);
+  opacity: 0.7;
+}
+.input-glass:focus {
+  border-color: var(--color-primary);
+  background: oklch(1 0 0 / 0.07);
+  box-shadow: 0 0 0 3px oklch(0.65 0.20 40 / 0.10);
+}
+
+/* ── Result Row — Clean, numbered, no cards ── */
+.result-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  min-height: 44px;
+  border-radius: 12px;
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+  transition:
+    background 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  text-decoration: none;
+  color: inherit;
+}
+.result-row:last-child {
+  border-bottom: none;
+}
+.result-row:hover {
+  background: oklch(1 0 0 / 0.05);
+}
+
+/* ── Avatar ──
+   Layout is handled by Tailwind on the Radix Root (size, rounding, flex).
+   This rule exists only for contextual selectors below (result-row hover,
+   scoreboard-card hover) — the class is still applied to the Root element
+   for backward compatibility with those selectors. */
+.avatar-circle {
+  flex-shrink: 0;
+}
+
+/* ── Score Pill ── */
+.score-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* ── Number Badge (rank) ── */
+.rank-badge {
+  width: 22px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* ── Skeleton Pulse ── */
+.skeleton {
+  background: oklch(1 0 0 / 0.06);
+  border-radius: 8px;
+  animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.6; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATION UTILITIES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Display Hero — Unseen-inspired typographic confidence ──
+   Within DESIGN.md limits: clamp ≤ 5rem, tracking ≥ -0.04em. */
+.display-hero {
+  font-family: var(--font-sans);
+  font-size: var(--display-size);
+  font-weight: 700;
+  letter-spacing: var(--display-tracking);
+  line-height: 0.98;
+  text-wrap: balance;
+}
+
+/* ── Scoreboard Number — tabular mono for the figure that matters ──
+   Match percentage, headline stat, live comparison. Always paired
+   with a text-xs uppercase label underneath. */
+.scoreboard {
+  font-family: var(--font-mono);
+  font-size: var(--scoreboard-size);
+  letter-spacing: var(--scoreboard-tracking);
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* ── Constellation Loading (stub) ──
+   Sparse dot field for search loading state.
+   Full SVG constellation graph is a future enhancement. */
+.constellation-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+}
+.constellation-loading .dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-ink-tertiary, oklch(0.54 0.002 85));
+  opacity: 0.4;
+}
+
+/* ── Search Pill — Apple Spotlight inspired ──
+   Single pill, compact, precision-machined surface.
+   Not glass, not double-bezel. The input IS the component. */
+.search-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 8px 0 20px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 9999px;
+  box-shadow:
+    inset 0 1px 2px oklch(0 0 0 / 0.4),
+    0 1px 0 oklch(1 0 0 / 0.03);
+  transition:
+    border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.search-pill:focus-within {
+  border-color: var(--color-border-focus);
+  box-shadow:
+    inset 0 1px 2px oklch(0 0 0 / 0.4),
+    0 0 0 3px oklch(0.65 0.20 40 / 0.12);
+}
+.search-pill-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--color-ink);
+  min-width: 0;
+}
+.search-pill-input::placeholder {
+  color: var(--color-ink-muted);
+  opacity: 0.6;
+}
+
+/* Search submit — inline text + icon, not a filled pill */
+.search-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  background: transparent;
+  border: none;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.20s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.search-submit:hover {
+  color: var(--color-primary);
+}
+.search-submit:active {
+  transform: scale(0.97);
+}
+.search-submit-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: oklch(1 0 0 / 0.06);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 0.20s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.20s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.search-submit:hover .search-submit-icon {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Trending Search Chip — text link with mono number ── */
+.trending-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 0;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-muted);
+  cursor: pointer;
+  user-select: none;
+  background: transparent;
+  border: none;
+  transition:
+    color 0.20s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.20s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.trending-chip:hover {
+  color: var(--color-ink);
+  transform: translateX(4px);
+}
+.trending-chip-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-disabled);
+  transition: color 0.20s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.trending-chip:hover .trending-chip-num {
+  color: var(--color-primary);
+}
+.trending-chip-arrow {
+  opacity: 0;
+  transform: translateX(-4px);
+  color: var(--color-ink-muted);
+  transition:
+    opacity 0.20s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.20s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.20s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.trending-chip:hover .trending-chip-arrow {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--color-primary);
+}
+
+/* ── Nav Link Clip — CSS-only two-layer slide (Unseen-style) ──
+   No Framer Motion per-character. Pure CSS :hover.
+   Default layer slides up and out; hover layer slides up and in.
+   Active route shows hover layer permanently. */
+.nav-link-clip {
+  display: inline-block;
+  overflow: hidden;
+  position: relative;
+  height: 1.4em;
+  line-height: 1.4em;
+  vertical-align: bottom;
+}
+.nav-link-text-default,
+.nav-link-text-hover {
+  display: block;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.nav-link-text-default {
+  position: relative;
+  transform: translateY(0);
+}
+.nav-link-text-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(100%);
+}
+/* Hover state — default slides up out, hover slides up in */
+.nav-link:hover .nav-link-text-default {
+  transform: translateY(-100%);
+}
+.nav-link:hover .nav-link-text-hover {
+  transform: translateY(0);
+}
+/* Active route — hover layer permanently visible */
+.nav-link-active .nav-link-text-default {
+  transform: translateY(-100%);
+}
+.nav-link-active .nav-link-text-hover {
+  transform: translateY(0);
+}
+
+/* ── Result Row hover: avatar scale + score bar ── */
+.result-row .avatar-circle {
+  transition: transform 0.20s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.result-row:hover .avatar-circle {
+  transform: scale(1.08);
+}
+.score-bar-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: oklch(1 0 0 / 0.06);
+  border-radius: 9999px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.20s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.result-row:hover .score-bar-track {
+  opacity: 1;
+}
+.score-bar-fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 9999px;
+}
+
+/* ── Scoreboard card hover ── */
+.scoreboard-card {
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.scoreboard-card:hover {
+  transform: translateY(-2px);
+}
+.scoreboard-card:hover .glass-inner {
+  background: oklch(0.16 0.005 85 / 0.78);
+}
+.scoreboard-card:hover .avatar-circle {
+  box-shadow: 0 0 0 2px var(--color-primary-ambient);
+}
+
+/* ── Nav counter — live index count ── */
+.nav-counter {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-ink-muted);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NAV — Fluid Island
+   ═══════════════════════════════════════════════════════════════ */
+
+.nav-island {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 10px 20px;
+  /* Warm-tinted glass — ambient light from the court, not a brand color */
+  background: oklch(0.11 0.008 40 / 0.80);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid oklch(1 0 0 / 0.08);
+  border-radius: 9999px;
+  /* 6% amber inset hairline along top edge — light catching the rim */
+  box-shadow:
+    inset 0 1px 0 oklch(0.65 0.20 40 / 0.06),
+    0 4px 24px oklch(0.05 0.002 85 / 0.55);
+  transition:
+    background 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-island-scrolled {
+  background: oklch(0.09 0.008 40 / 0.90);
+  box-shadow:
+    inset 0 1px 0 oklch(0.65 0.20 40 / 0.08),
+    0 8px 32px oklch(0.05 0.002 85 / 0.65);
+}
+
+/* ── Nav link ── */
+.nav-link {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.30s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-link-active {
+  color: var(--color-ink);
+}
+.nav-link-inactive {
+  color: var(--color-ink-muted);
+}
+.nav-link-inactive:hover {
+  color: var(--color-ink-soft);
+}
+
+/* Active route underline — 2px amber, animates width 0→100% */
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-primary);
+  border-radius: 1px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-link-active::after {
+  transform: scaleX(1);
+}
+
+/* Brand dot — 4px amber period that is also a basketball */
+.nav-brand-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  margin-left: 3px;
+  vertical-align: 2px;
+}
+
+/* ── Brand wordmark ── */
+.nav-brand {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+  text-decoration: none;
+  transition: opacity 0.30s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.nav-brand:hover {
+  opacity: 0.80;
+}
+
+/* ── Hamburger ── */
+.hamburger-line {
+  display: block;
+  width: 18px;
+  height: 1.5px;
+  background: var(--color-ink);
+  border-radius: 2px;
+  transition:
+    transform 0.40s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hamburger-open .hamburger-line:nth-child(1) {
+  transform: translateY(5.25px) rotate(45deg);
+}
+.hamburger-open .hamburger-line:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.hamburger-open .hamburger-line:nth-child(3) {
+  transform: translateY(-5.25px) rotate(-45deg);
+}
+
+/* ── Mobile menu overlay ── */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: oklch(0.07 0 0 / 0.94);
+  backdrop-filter: blur(48px);
+  -webkit-backdrop-filter: blur(48px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.menu-link {
+  font-family: var(--font-sans);
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--color-ink);
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.50s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.50s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.30s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.menu-link:hover {
+  color: var(--color-primary);
+}
+.menu-link-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITY
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Prevent body scroll when menu open */
+.body-locked {
+  overflow: hidden;
+}
+
+/* Text balance for headings */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Tabular numbers for data */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CUSTOM CURSOR — dot + ring (Amendment B)
+   Desktop only (pointer: fine). Touch gets native cursor.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Gated behind .custom-cursor, added by <Cursor /> only when it is running.
+   Without JS the native cursor stays visible. */
+@media (pointer: fine) {
+  html.custom-cursor body {
+    cursor: none;
+  }
+  html.custom-cursor a,
+  html.custom-cursor button,
+  html.custom-cursor input,
+  html.custom-cursor [data-cursor] {
+    cursor: none;
+  }
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 50%;
+  mix-blend-mode: difference;
+  will-change: transform;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: oklch(0.96 0 0);
+  transform: translate(-50%, -50%);
+}
+
+.cursor-ring {
+  width: 28px;
+  height: 28px;
+  border: 1px solid oklch(1 0 0 / 0.35);
+  transform: translate(-50%, -50%);
+  transition:
+    width 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Hover state on interactive elements */
+.cursor-ring-hover {
+  width: 40px;
+  height: 40px;
+  border-color: oklch(1 0 0 / 0.5);
+}
+.cursor-dot-hidden {
+  opacity: 0;
+}
+
+/* Selectable state (result rows, player cards) — amber tint */
+.cursor-ring-selectable {
+  width: 56px;
+  height: 56px;
+  border-color: oklch(0.65 0.20 40 / 0.4);
+  background: oklch(0.65 0.20 40 / 0.06);
+}
+
+/* Reduced motion — disable ring lag */
+@media (prefers-reduced-motion: reduce) {
+  .cursor-ring {
+    transition: none;
+  }
+}
