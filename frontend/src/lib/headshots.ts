@@ -19,6 +19,8 @@
 
 import { useSyncExternalStore } from "react";
 
+import { API_BASE } from "./api";
+
 /** Normalized player name → headshot URL. */
 let headshotCache: Map<string, string> | null = null;
 
@@ -54,7 +56,7 @@ async function ensureHeadshotsLoaded(): Promise<Map<string, string>> {
   if (headshotCache) return headshotCache;
   if (fetchPromise) return fetchPromise;
 
-  fetchPromise = fetch("/api/v1/headshots")
+  fetchPromise = fetch(`${API_BASE}/headshots`)
     .then((res) => {
       if (!res.ok) {
         throw new Error(`Headshot endpoint returned ${res.status}`);

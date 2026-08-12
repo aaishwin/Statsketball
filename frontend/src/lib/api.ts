@@ -13,15 +13,22 @@ import type {
 } from "./types";
 
 // API origin resolution:
-// - If NEXT_PUBLIC_API_URL is set at build time (production), call the
-//   backend directly and rely on CORS. Netlify's Next.js runtime does not
-//   apply next.config.ts rewrites to external URLs, so the same-origin
-//   proxy cannot be relied on there.
-// - Otherwise (local dev), use the relative path through the next dev
-//   rewrite to http://localhost:8000.
-const API_BASE = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, "")}/api/v1`
-  : "/api/v1";
+// 1. NEXT_PUBLIC_API_URL (inlined at build time) — explicit override.
+// 2. Production builds default to the Render backend directly. Netlify's
+//    Next.js runtime applies next.config.ts rewrites, but with the env var
+//    unset they target http://localhost:8000 and fail with a 500, so the
+//    client must not rely on the same-origin proxy in production. CORS on
+//    the backend is configured for this site's origin.
+// 3. Local dev uses the relative /api/v1 path through the next dev rewrite
+//    to http://localhost:8000.
+const API_BASE = `${
+  process.env.NEXT_PUBLIC_API_URL ??
+  (process.env.NODE_ENV === "production"
+    ? "https://statsketball-api.onrender.com"
+    : "")
+}`.replace(/\/+$/, "") + "/api/v1";
+
+export { API_BASE };
 
 class ApiClientError extends Error {
   status: number;
