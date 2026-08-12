@@ -72,11 +72,11 @@ flowchart TD
 ### 1.1: Career Aggregation. 
 For each player $p$, we have season by season statistics over $S_{p}$ seasons. Features that encompass the player's career as a whole are calculated through this mean:
 
-$$
+```math
 \bar{f}_{p}
  = 
 \frac{1}{S_{p}} \sum_{s=1}^{S_{p}} f_{p,s}
-$$
+```
 
 where $f_{p,s}$ is the feature value for player $p$ in season $s$.  Only players with 𝑆𝑝≥5 seasons are retained. This filters out one and done players, and players who don't really have enough data to quantify their playstyles. 
 The aggregation collapses ~28,000 player-seasons into ~1,800 career-level vectors.
@@ -104,13 +104,13 @@ When multiple variants of the same concept exist (e.g., `pts_per_game`, `pts_per
 
 From the seven blocks, six composite Z-score indices are computed using StandardScaler: 
 
-$$
+```math
 z_f = \frac{f - \mu_f}{\sigma_f}
-$$
+```
 
 For each of the six archetype dimensions, the composite is the mean of its constituent Z-scored features:
 
-$$
+```math
 \begin{aligned}
 \text{Scoring}_p &= \frac{1}{|\mathcal{S}|} \sum_{f \in \mathcal{S}} z_{f,p} \quad \text{where } \mathcal{S} = \{\text{pts, usg\%, per, fg\_per\_game, fga\_per\_game}\} \\
 \text{Playmaking}_p &= \frac{1}{|\mathcal{P}|} \sum_{f \in \mathcal{P}} z_{f,p} \quad \text{where } \mathcal{P} = \{\text{ast\_per\_game, ast\%, tov\%, pts\_generated\_by\_asts}\} \\
@@ -119,7 +119,7 @@ $$
 \text{Spacing}_p &= \frac{1}{|\mathcal{SP}|} \sum_{f \in \mathcal{SP}} z_{f,p} \quad \text{where } \mathcal{SP} = \{\text{x3p\_ar, avg\_dist\_fga, 3p\%}\} \\
 \text{Versatility}_p &= \frac{1}{|\mathcal{V}|} \sum_{f \in \mathcal{V}} z_{f,p} \quad \text{where } \mathcal{V} = \{\text{pg\%, sg\%, sf\%, pf\%, c\%}\}
 \end{aligned}
-$$
+```
 
 
 
@@ -154,13 +154,13 @@ flowchart LR
 
 Formally, for each feature $f$, and each debut era $e$:
 
-$$
+```math
 \mu_{f,e} = \frac{1}{|P_e|} \sum_{p \in P_e} \bar{f}_p, \quad \sigma_{f,e} = \sqrt{\frac{1}{|P_e|} \sum_{p \in P_e} (\bar{f}_p - \mu_{f,e})^2}
-$$
+```
 
-$$
+```math
 \tilde{f}_p = \frac{\bar{f}_p - \mu_{f, \text{era}(p)}}{\sigma_{f, \text{era}(p)} + \epsilon}
-$$
+```
 
 
 where $P_e$ is the set of players who debuted in era $e$, and $\epsilon = 10^{-8}$ guards against zero-variance features. Debut era is used (not per-season) so a player's entire career is normalized against the era they entered the league in. 
@@ -189,9 +189,9 @@ The six era buckets are:
 
 Even after adjusting for the era, extreme outliers are still there. For example Wilt Chamberlain's minutes and rebounds are still $>4\sigma$ even with era adjustment. RobustScaler, with a quantile range of (5.0, 95.0) clips these:
 
-$$
+```math
 \tilde{f}_p^{\text{scaled}} = \frac{\tilde{f}_p - Q_{0.5}(\tilde{f})}{Q_{0.95}(\tilde{f}) - Q_{0.05}(\tilde{f})}
-$$
+```
 
 
 This is preferred over StandardScaler (which uses mean ± std) because the median and interquartile range are robust to the extreme outliers that characterize historical basketball statistics.
@@ -204,15 +204,15 @@ This is preferred over StandardScaler (which uses mean ± std) because the media
 
 PCA (Principal Component Analysis) decomposes the $N \times D$ feature matrix $\mathbf{X}$ (after RobustScaler) into:
 
-$$
+```math
 \mathbf{X} = \mathbf{T} \mathbf{P}^T + \mathbf{E}
-$$
+```
 
 Where $\mathbf{T}$ is the $N \times k$ score matrix, $\mathbf{P}$ is the $D \times k$ loading matrix, and $\mathbf{E}$ is the residual. The number of components $k$ is chosen to retain 90% of total variance:
 
-$$
+```math
 k = \min\left\lbrace j : \frac{\sum_{i=1}^{j} \lambda_i}{\sum_{i=1}^{d} \lambda_i} \geq 0.90\right\rbrace
-$$
+```
 
 where $\lambda_i$ are eigenvalues of the matrix $\frac{1}{n-1}\mathbf{X}^T\mathbf{X}$, sorted in descending order. 
 
@@ -230,29 +230,29 @@ PCA has two distinct purposes:
 Uniform Manifold Approximation and Projection, or UMAP for short, creates a two dimensional, PCA reduced space, that allows for interactive visualization. 
 UMAP creates a weighted k-nearest neighbor graph with a fuzzy simplicial set representation:
 
-$$
+```math
 \mu(x_i, x_j) = \exp\left(-\frac{d(x_i, x_j) - \rho_i}{\sigma_i}\right)
-$$
+```
 
 where $\rho_i$ is the distance to $x_i$'s nearest neighbour, and $\sigma_i$ is chosen so that:
 
-$$
+```math
 \sum_{j=1}^{k} \exp\left(-\frac{d(x_i, x_{i_j}) - \rho_i}{\sigma_i}\right) = \log_2(k)
-$$
+```
 
 This low dimensional embedding $\{y_i\}$ is optimized using cross-entropy between the high-dimensional fuzzy set membership $\mu$ and the low-dimensional membership $\nu$:
 
-$$
+```math
 \mathcal{L}_{\text{UMAP}} = \sum_{i \neq j} \left[\mu_{ij} \log\frac{\mu_{ij}}{\nu_{ij}} + (1 - \mu_{ij}) \log\frac{1 - \mu_{ij}}{1 - \nu_{ij}}\right]
-$$
+```
 
 where $\nu_{ij} = \left(1 + a\|y_i - y_j\|^{2b}\right)^{-1}$ is a Student-t kernel approximating the indicator $\mathbb{1}_{\|y_i - y_j\| \leq \text{min\_dist}}$.
 
 Key parameters: `n_neighbors=15` (balances local/global structure), `min_dist=0.1` (avoids point collapse), `metric="cosine"` (emphasizes directional similarity — style direction over magnitude). Cosine distance on PCA space is:
 
-$$
+```math
 d_{\cos}(\mathbf{u}, \mathbf{v}) = 1 - \frac{\mathbf{u} \cdot \mathbf{v}}{\|\mathbf{u}\| \|\mathbf{v}\|}
-$$
+```
 
 
 
@@ -265,17 +265,17 @@ The clustering pipeline takes three parallel algorithms, and then combines their
 
 HDBSCAN creates a mutual reachability graph:
 
-$$
+```math
 d_{\text{mreach},k}(\mathbf{x}_p, \mathbf{x}_q) = \max\{\text{core}_k(\mathbf{x}_p), \text{core}_k(\mathbf{x}_q), d(\mathbf{x}_p, \mathbf{x}_q)\}
-$$
+```
 
 where $\text{core}_k(\mathbf{x})$ is the distance to the $k$-th nearest neighbour (here $k = \text{min\_samples} = 3$).
 A minimum spanning tree is built using this graph, and a cluster hierarchy is created by removing edges by weight, in descending order.
 Clusters are then extracted using the leaf selection method, with $\text{min\_cluster\_size} = 25$ (~1.4% of all players):
 
-$$
+```math
 \mathcal{C}_{\text{HDBSCAN}} = \{\mathbf{x}_i : \lambda_{\text{birth}}(\mathbf{x}_i) - \lambda_{\text{death}}(\mathbf{x}_i) \geq \text{threshold}\}
-$$
+```
 
 where $\lambda = 1/d$ is the density level. Players in a low density region, are labeled as noise, or a -1. This represents hybrid, or transitional playing styles that don't exactly fit into one type of player. 
 
@@ -287,9 +287,9 @@ If the data is too homoeneous for density based separation, then HDBSCAN is not 
 
 Ward's method minimizes the within-cluster sum of squared errors during each merge:
 
-$$
+```math
 \Delta(A, B) = \frac{|A| \cdot |B|}{|A| + |B|} \|\bar{\mathbf{x}}_A - \bar{\mathbf{x}}_B\|^2
-$$
+```
 
 where $\bar{\mathbf{x}}_A$, $\bar{\mathbf{x}}_B$ are centroids of clusters $A$ and $B$. 
  Ward linkage on Euclidean PCA space with k=12 produces a dendrogram that captures nested style relationships, such as how "shot creators" might split itself into "volume scorers" or efficient scorers, with a finer granularity. 
@@ -300,9 +300,9 @@ where $\bar{\mathbf{x}}_A$, $\bar{\mathbf{x}}_B$ are centroids of clusters $A$ a
 
  KMeans minimizes the within-cluster sum of squares:
 
-$$
+```math
 \arg\min_{\mathcal{C}} \sum_{i=1}^{k} \sum_{\mathbf{x} \in C_i} \|\mathbf{x} - \boldsymbol{\mu}_i\|^2
-$$
+```
 
 where $\boldsymbol{\mu}_i = \frac{1}{|C_i|}\sum_{\mathbf{x} \in C_i} \mathbf{x}$ is the centroid of cluster $i$. 
 
@@ -313,9 +313,9 @@ where $\boldsymbol{\mu}_i = \frac{1}{|C_i|}\sum_{\mathbf{x} \in C_i} \mathbf{x}$
 
 The co-association matrix $\mathbf{C} \in [0, 1]^{n \times n}$ captures the frequency of players being assigned to the same cluster across different algorithms:
 
-$$
+```math
 C_{ij} = \frac{1}{|\mathcal{A}|} \sum_{a \in \mathcal{A}} \mathbb{1}\left[\ell_a(i) = \ell_a(j) \land \ell_a(i) \neq -1\right]
-$$
+```
 
 where $\mathcal{A}$ is the set of algorithms (HDBSCAN, Hierarchical, KMeans), and $\ell_a(i)$ is the cluster label assigned by algorithm $a$ to player $i$.   
 
@@ -356,9 +356,9 @@ The consensus labels are obtained by clustering the distance matrix 𝐷=1−�
 
 Each cluster is labeled by calculating the Z-score of its centroid relative to the global mean:
 
-$$
+```math
 z_{f,c} = \frac{\mu_{f,c} - \mu_{f,\text{global}}}{\sigma_{f,\text{global}} + 10^{-8}}
-$$
+```
 
 where $\mu_{f,c} = \frac{1}{|C|}\sum_{p \in C} f_p$ is the cluster mean for feature $f$. The top 4 features, calculated by the absolute value of the z-score, are matched against a curated table of basketball terms: 
 
@@ -385,9 +385,9 @@ Labels are concatenated with • separators, creating basketball archetype label
 
 Exemplar players are the 8 players closest to the cluster centroid, calculated by Euclidean distance:
 
-$$
+```math
 \text{exemplar}(C) = \arg\min_{\mathbf{x}_p \in C}^{(8)} \|\mathbf{x}_p - \boldsymbol{\mu}_C\|
-$$
+```
 
 
 
@@ -398,17 +398,17 @@ $$
 ### 5.1: Silhouette Score (Cosine)
 The silhouette score determines the quality of cluster separation:
 
-$$
+```math
 s(i) = \frac{b(i) - a(i)}{\max\{a(i), b(i)\}}
-$$
+```
 
 where $a(i)$ is the mean cosine distance from point $i$ to all other points in its own cluster, and $b(i)$ is the mean cosine distance from point $i$ to all points in the nearest other cluster.
 
 The overall silhouette is the mean across all points:
 
-$$
+```math
 S = \frac{1}{n} \sum_{i=1}^{n} s(i), \quad S \in [-1, 1]
-$$
+```
 
 Higher is better for this. Cosine similarity is used because we are clustering direction and magnitude. 
 
@@ -417,9 +417,9 @@ Higher is better for this. Cosine similarity is used because we are clustering d
 
 The Davies-Bouldin index calculates the average similarity between each cluster and its most similar neighbor:
 
-$$
+```math
 DB = \frac{1}{k} \sum_{i=1}^{k} \max_{j \neq i} \left\lbrace \frac{\sigma_i + \sigma_j}{d(\boldsymbol{\mu}_i, \boldsymbol{\mu}_j)} \right\rbrace
-$$
+```
 
 where $\sigma_i$ is the average distance of points in cluster $i$ to its centroid $\boldsymbol{\mu}_i$. Lower is better. 
 
@@ -428,9 +428,9 @@ where $\sigma_i$ is the average distance of points in cluster $i$ to its centroi
 
 For player clustering, what fraction of consecutive-season players remain in the same cluster?
 
-$$
+```math
 \text{Stability} = \frac{|\{(p, s) : \ell(p_s) = \ell(p_{s+1}) \land s+1 \text{ is consecutive}\}|}{|\{(p, s) : s+1 \text{ is consecutive}\}|}
-$$
+```
 
 High stability, which is categorized as  >0.75, means that the clusters track consistent identities instead of per season noise.
 
@@ -441,9 +441,9 @@ High stability, which is categorized as  >0.75, means that the clusters track co
 
 A healthy pipeline should have Hall of Famers distributed across clusters, not concentrated into one. If all HOFers are in one cluster, the pipeline is measuring "greatness" instead of playstyle:
 
-$$
+```math
 \text{HOF Diversity} = |\{\text{unique clusters containing } \geq 1 \text{ HOF player}\}|
-$$
+```
 
 
 
@@ -458,9 +458,9 @@ The FAISS index stores the full era-adjusted + RobustScaler-transformed vector (
 
 Vectors are L2-normalized before insertion:
 
-$$
+```math
 \hat{\mathbf{v}}_p = \frac{\mathbf{v}_p}{\|\mathbf{v}_p\|_2}, \quad \|\mathbf{v}_p\|_2 = \sqrt{\sum_{i=1}^{d} v_{p,i}^2}
-$$
+```
 
 
 
@@ -469,9 +469,9 @@ $$
 
 After L2-normalization, cosine similarity reduces to inner product:
 
-$$
+```math
 \cos(\hat{\mathbf{v}}_q, \hat{\mathbf{v}}_c) = \frac{\hat{\mathbf{v}}_q \cdot \hat{\mathbf{v}}_c}{\|\hat{\mathbf{v}}_q\| \cdot \|\hat{\mathbf{v}}_c\|} = \hat{\mathbf{v}}_q \cdot \hat{\mathbf{v}}_c = \sum_{i=1}^{d} \hat{v}_{q,i} \cdot \hat{v}_{c,i}
-$$
+```
 
 
 The index uses `faiss.METRIC_INNER_PRODUCT` with `IndexHNSWFlat` for approximate nearest neighbor search. HNSW (Hierarchical Navigable Small World) builds a multi-layer graph:
@@ -505,9 +505,9 @@ With approximately 1800 vectors, this gives us about a 95% recall, and a sub mil
 
 The hybrid score for query player $q$ and candidate $c$ is:
 
-$$
+```math
 \boxed{S_{\text{hybrid}}(q, c) = \alpha \cdot \underbrace{\cos(q, c)}_{\text{full cosine}} + \beta \cdot \underbrace{\frac{\sum_{b \in \mathcal{B}} w_b \cdot \cos(q_b, c_b)}{\sum_{b \in \mathcal{B}} w_b}}_{\text{block-weighted similarity}} + \gamma \cdot \underbrace{R(q, c)}_{\text{role bonus}}}
-$$
+```
 
 where:
 
@@ -516,9 +516,9 @@ where:
 - $w_b$ are the weight multipliers for each block. They default to $1.0$.
 - $\cos(q_b, c_b)$ is the cosine calculated for each block's sub-vectors, re-normalized inside the block:
 
-$$
+```math
 \cos(q_b, c_b) = \frac{\hat{\mathbf{v}}_{q,b} \cdot \hat{\mathbf{v}}_{c,b}}{\|\hat{\mathbf{v}}_{q,b}\| \cdot \|\hat{\mathbf{v}}_{c,b}\|}
-$$
+```
 
 - $R(q, c)$ is the role bonus: $+1.0$ if query and candidate share the same position, else $0$. 
 
@@ -534,21 +534,21 @@ We use block weighted similarity, so that the full cosine does not get dominated
 
 Cosine similarity is decomposed into feature-level contributions:
 
-$$
+```math
 \cos(\hat{\mathbf{v}}_q, \hat{\mathbf{v}}_c) = \sum_{i=1}^{d} \hat{v}_{q,i} \cdot \hat{v}_{c,i}
-$$
+```
 
 The fractional contributions are:
 
-$$
+```math
 \text{contrib}_i = \frac{\hat{v}_{q,i} \cdot \hat{v}_{c,i}}{\cos(\hat{\mathbf{v}}_q, \hat{\mathbf{v}}_c)}
-$$
+```
 
 The top 5 features by absolute contribution are returned as an explanation (e.g. "Player X is similar to Player Y because both have high `usg_percent`, positive `bpm`, and elite `stl_percent`."). Each block's contribution is aggregated:
 
-$$
+```math
 \text{contrib}_b = \frac{\sum_{i \in \text{block}_b} \hat{v}_{q,i} \cdot \hat{v}_{c,i}}{\cos(\hat{\mathbf{v}}_q, \hat{\mathbf{v}}_c)}
-$$
+```
 
 
 
@@ -557,15 +557,15 @@ $$
 
 The complete $N \times N$ cosine similarity matrix on PCA space is computed for the clustering pipeline:
 
-$$
+```math
 \mathbf{S} \in [-1, 1]^{n \times n}, \quad S_{ij} = \frac{\mathbf{x}_i^{\text{(pca)}} \cdot \mathbf{x}_j^{\text{(pca)}}}{\|\mathbf{x}_i^{\text{(pca)}}\| \cdot \|\mathbf{x}_j^{\text{(pca)}}\|}, \quad S_{ii} = 0
-$$
+```
 
 For datasets with $> 10{,}000$ samples, the full $O(n^2)$ computation is replaced by a KNN graph using `NearestNeighbors(metric="cosine")` with $k = 50$ neighbours:
 
-$$
+```math
 S_{ij}^{\text{sparse}} = \begin{cases} 1 - d_{\cos}(\mathbf{x}_i, \mathbf{x}_j) & \text{if } j \in \text{NN}_{50}(i) \\ 0 & \text{otherwise} \end{cases}
-$$
+```
 
 This reduces time complexity from $O(n^2)$ to $O(nk)$.
 
@@ -581,17 +581,17 @@ This reduces time complexity from $O(n^2)$ to $O(nk)$.
 
 On labeled similar pairs (cluster co-members, manual curation), Recall@k measures the fraction of "known similar" pairs retrieved in the top $k$:
 
-$$
+```math
 \text{Recall@k} = \frac{|\{\text{queries where expected similar is in top-}k\}|}{|\{\text{queries}\}|}
-$$
+```
 
 
 
 ### 8.2: Mean Reciprocal Rank (MRR)
 
-$$
+```math
 \text{MRR} = \frac{1}{|Q|} \sum_{q \in Q} \frac{1}{\text{rank}_q}
-$$
+```
 
 where $\text{rank}_q$ is the position of the first relevant result for query $q$. 
 
@@ -601,9 +601,9 @@ where $\text{rank}_q$ is the position of the first relevant result for query $q$
 
 Before promoting a new index, the top-10 results are compared to a baseline using Jaccard Similarity:
 
-$$
+```math
 J(q) = \frac{|\text{top10}_{\text{new}}(q) \cap \text{top10}_{\text{baseline}}(q)|}{|\text{top10}_{\text{new}}(q) \cup \text{top10}_{\text{baseline}}(q)|}
-$$
+```
 
 The new index is blocked if the mean Jaccard across query entities is $< 0.85$ at any point. 
 
