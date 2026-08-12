@@ -112,11 +112,11 @@ For each of the six archetype dimensions, the composite is the mean of its const
 
 $$
 \begin{aligned}
-\text{Scoring}_p &= \frac{1}{|\mathcal{S}|} \sum_{f \in \mathcal{S}} z_{f,p} \quad \text{where } \mathcal{S} = \{\text{pts, usg\%, per, fg\_per\_game, fga\_per\_game}\} \\
-\text{Playmaking}_p &= \frac{1}{|\mathcal{P}|} \sum_{f \in \mathcal{P}} z_{f,p} \quad \text{where } \mathcal{P} = \{\text{ast\_per\_game, ast\%, tov\%, pts\_generated\_by\_asts}\} \\
+\text{Scoring}_p &= \frac{1}{|\mathcal{S}|} \sum_{f \in \mathcal{S}} z_{f,p} \quad \text{where } \mathcal{S} = \{\text{pts, usg\%, per, fg_per_game, fga_per_game}\} \\
+\text{Playmaking}_p &= \frac{1}{|\mathcal{P}|} \sum_{f \in \mathcal{P}} z_{f,p} \quad \text{where } \mathcal{P} = \{\text{ast_per_game, ast\%, tov\%, pts_generated_by_asts}\} \\
 \text{Defense}_p &= \frac{1}{|\mathcal{D}|} \sum_{f \in \mathcal{D}} z_{f,p} \quad \text{where } \mathcal{D} = \{\text{stl\%, blk\%, dbpm, dws}\} \\
-\text{Rebounding}_p &= \frac{1}{|\mathcal{R}|} \sum_{f \in \mathcal{R}} z_{f,p} \quad \text{where } \mathcal{R} = \{\text{orb\%, drb\%, trb\%, orb\_per\_game, drb\_per\_game, trb\_per\_game}\} \\
-\text{Spacing}_p &= \frac{1}{|\mathcal{SP}|} \sum_{f \in \mathcal{SP}} z_{f,p} \quad \text{where } \mathcal{SP} = \{\text{x3p\_ar, avg\_dist\_fga, 3p\%}\} \\
+\text{Rebounding}_p &= \frac{1}{|\mathcal{R}|} \sum_{f \in \mathcal{R}} z_{f,p} \quad \text{where } \mathcal{R} = \{\text{orb\%, drb\%, trb\%, orb_per_game, drb_per_game, trb_per_game}\} \\
+\text{Spacing}_p &= \frac{1}{|\mathcal{SP}|} \sum_{f \in \mathcal{SP}} z_{f,p} \quad \text{where } \mathcal{SP} = \{\text{x3p_ar, avg_dist_fga, 3p\%}\} \\
 \text{Versatility}_p &= \frac{1}{|\mathcal{V}|} \sum_{f \in \mathcal{V}} z_{f,p} \quad \text{where } \mathcal{V} = \{\text{pg\%, sg\%, sf\%, pf\%, c\%}\}
 \end{aligned}
 $$
@@ -211,7 +211,7 @@ $$
 Where $\mathbf{T}$ is the $N \times k$ score matrix, $\mathbf{P}$ is the $D \times k$ loading matrix, and $\mathbf{E}$ is the residual. The number of components $k$ is chosen to retain 90% of total variance:
 
 $$
-k = \min\left\{j : \frac{\sum_{i=1}^{j} \lambda_i}{\sum_{i=1}^{d} \lambda_i} \geq 0.90\right\}
+k = \min\left\lbrace j : \frac{\sum_{i=1}^{j} \lambda_i}{\sum_{i=1}^{d} \lambda_i} \geq 0.90\right\rbrace
 $$
 
 where $\lambda_i$ are eigenvalues of the matrix $\frac{1}{n-1}\mathbf{X}^T\mathbf{X}$, sorted in descending order. 
@@ -246,7 +246,7 @@ $$
 \mathcal{L}_{\text{UMAP}} = \sum_{i \neq j} \left[\mu_{ij} \log\frac{\mu_{ij}}{\nu_{ij}} + (1 - \mu_{ij}) \log\frac{1 - \mu_{ij}}{1 - \nu_{ij}}\right]
 $$
 
-where $\nu_{ij} = \left(1 + a\|y_i - y_j\|^{2b}\right)^{-1}$ is a Student-t kernel approximating the indicator $\mathbb{1}_{\|y_i - y_j\| \leq \text{min\_dist}}$.
+where $\nu_{ij} = \left(1 + a\|y_i - y_j\|^{2b}\right)^{-1}$ is a Student-t kernel approximating the indicator $\mathbb{1}_{\|y_i - y_j\| \leq \text{min_dist}}$.
 
 Key parameters: `n_neighbors=15` (balances local/global structure), `min_dist=0.1` (avoids point collapse), `metric="cosine"` (emphasizes directional similarity — style direction over magnitude). Cosine distance on PCA space is:
 
@@ -269,9 +269,9 @@ $$
 d_{\text{mreach},k}(\mathbf{x}_p, \mathbf{x}_q) = \max\{\text{core}_k(\mathbf{x}_p), \text{core}_k(\mathbf{x}_q), d(\mathbf{x}_p, \mathbf{x}_q)\}
 $$
 
-where $\text{core}_k(\mathbf{x})$ is the distance to the $k$-th nearest neighbour (here $k = \text{min\_samples} = 3$).
+where $\text{core}_k(\mathbf{x})$ is the distance to the $k$-th nearest neighbour (here $k = \text{min_samples} = 3$).
 A minimum spanning tree is built using this graph, and a cluster hierarchy is created by removing edges by weight, in descending order.
-Clusters are then extracted using the leaf selection method, with $\text{min\_cluster\_size} = 25$ (~1.4% of all players):
+Clusters are then extracted using the leaf selection method, with $\text{min_cluster_size} = 25$ (~1.4% of all players):
 
 $$
 \mathcal{C}_{\text{HDBSCAN}} = \{\mathbf{x}_i : \lambda_{\text{birth}}(\mathbf{x}_i) - \lambda_{\text{death}}(\mathbf{x}_i) \geq \text{threshold}\}
@@ -418,7 +418,7 @@ Higher is better for this. Cosine similarity is used because we are clustering d
 The Davies-Bouldin index calculates the average similarity between each cluster and its most similar neighbor:
 
 $$
-DB = \frac{1}{k} \sum_{i=1}^{k} \max_{j \neq i} \left\{ \frac{\sigma_i + \sigma_j}{d(\boldsymbol{\mu}_i, \boldsymbol{\mu}_j)} \right\}
+DB = \frac{1}{k} \sum_{i=1}^{k} \max_{j \neq i} \left\lbrace \frac{\sigma_i + \sigma_j}{d(\boldsymbol{\mu}_i, \boldsymbol{\mu}_j)} \right\rbrace
 $$
 
 where $\sigma_i$ is the average distance of points in cluster $i$ to its centroid $\boldsymbol{\mu}_i$. Lower is better. 
