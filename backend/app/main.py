@@ -62,7 +62,10 @@ def _parse_cors_origins() -> list[str]:
     allow_credentials=True, so this is safe but discouraged).
     """
     raw = os.environ.get("CORS_ALLOWED_ORIGINS", "http://localhost:3000")
-    origins = [o.strip() for o in raw.split(",") if o.strip()]
+    # Starlette matches allow_origins by exact string equality, and browsers
+    # never send a trailing slash in Origin — strip it so env values like
+    # "https://app.example.com/" still work.
+    origins = [o.strip().rstrip("/") for o in raw.split(",") if o.strip()]
     return origins or ["http://localhost:3000"]
 
 
