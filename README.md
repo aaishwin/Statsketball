@@ -70,7 +70,7 @@ flowchart TD
 ## 1: Feature Engineering
 
 ### 1.1: Career Aggregation. 
-For each player p, we have season by season statistics over S_{P} seasons. Features that encompass the players career as a whole are calculated through this mean: 
+For each player $p$, we have season by season statistics over $S_{p}$ seasons. Features that encompass the player's career as a whole are calculated through this mean:
 
 $$
 \bar{f}_{p}
@@ -87,17 +87,17 @@ The aggregation collapses ~28,000 player-seasons into ~1,800 career-level vector
 The feature space is divided  into seven different blocks, that each measure a distinct dimension of playing style:
 
 Block	Cardinality	Representative Features
-Scoring	12	pts_per_game, usg_percent, ts_percent, fg_percent
-Playmaking	5	ast_per_game, ast_percent, tov_percent
-Rebounding	6	orb_percent, drb_percent, trb_percent
-Defense	6	stl_percent, blk_percent, dbpm, dws
-Shooting	16	avg_dist_fga, x3p_ar, shot zone percentages
-Positional	5	pg_percent, sg_percent, sf_percent, pf_percent, c_percent
-Advanced	9	per, bpm, obpm, vorp, ws, ws_48
+Scoring	12	`pts_per_game`, `usg_percent`, `ts_percent`, `fg_percent`
+Playmaking	5	`ast_per_game`, `ast_percent`, `tov_percent`
+Rebounding	6	`orb_percent`, `drb_percent`, `trb_percent`
+Defense	6	`stl_percent`, `blk_percent`, dbpm, dws
+Shooting	16	`avg_dist_fga`, `x3p_ar`, shot zone percentages
+Positional	5	`pg_percent`, `sg_percent`, `sf_percent`, `pf_percent`, `c_percent`
+Advanced	9	per, bpm, obpm, vorp, ws, `ws_48`
 
 #### Deduplication rule:
 
-When multiple variants of the same concept exist (e.g., pts_per_game, pts_per_100_poss, pts_per_36_min), only the canonical form is kept (pts_per_game for scoring volume, orb_percent (rate) for rebounding (since rates are era-invariant while raw counts are pace-dependent).)
+When multiple variants of the same concept exist (e.g., `pts_per_game`, `pts_per_100_poss`, `pts_per_36_min`), only the canonical form is kept (`pts_per_game` for scoring volume, `orb_percent` (rate) for rebounding (since rates are era-invariant while raw counts are pace-dependent).)
 
 
 ### 1.3: Composite Archetype Scores
@@ -124,8 +124,8 @@ $$
 
 
 
-where Versatility_p captures positional diversity, or  how evenly a player's minutes are distributed across the 5 positions (pg, sg, sf, pf, c).  The positional entropy itself is implicitly captured by the Z-score mean across
-{pg_percent, sg_percent, sf_percent, pf_percent, c_percent}. 
+where `Versatility_p` captures positional diversity, or  how evenly a player's minutes are distributed across the 5 positions (pg, sg, sf, pf, c).  The positional entropy itself is implicitly captured by the Z-score mean across
+{`pg_percent`, `sg_percent`, `sf_percent`, `pf_percent`, `c_percent`}. 
 
 
 ### 1.4: Era Adjustment
@@ -187,7 +187,7 @@ The six era buckets are:
 
 ### 1.5: RobustScaler
 
-Even after adjusting for the era, extreme outliers are still there. For example Wilt Chamberlain's minutes and rebounds are still >4σ even with era adjustment. RobustScaler, with a quantile range of (5.0, 95.0) clips these:
+Even after adjusting for the era, extreme outliers are still there. For example Wilt Chamberlain's minutes and rebounds are still $>4\sigma$ even with era adjustment. RobustScaler, with a quantile range of (5.0, 95.0) clips these:
 
 $$
 \tilde{f}_p^{\text{scaled}} = \frac{\tilde{f}_p - Q_{0.5}(\tilde{f})}{Q_{0.95}(\tilde{f}) - Q_{0.05}(\tilde{f})}
@@ -217,7 +217,7 @@ $$
 where $\lambda_i$ are eigenvalues of the matrix $\frac{1}{n-1}\mathbf{X}^T\mathbf{X}$, sorted in descending order. 
 
 
-Our empirical result, With ~65 era-adjusted features, is that the PCA retains about 90% variance at k \approx 35-55 components for players. 
+Our empirical result, with ~65 era-adjusted features, is that the PCA retains about 90% variance at $k \approx 35-55$ components for players.
 PCA has two distinct purposes: 
 
 1. Denoising: Low variance componenents have alot of noise. Things such as measurement errors, or imputation artifacts are discarded. 
@@ -306,7 +306,7 @@ $$
 
 where $\boldsymbol{\mu}_i = \frac{1}{|C_i|}\sum_{\mathbf{x} \in C_i} \mathbf{x}$ is the centroid of cluster $i$. 
 
- KMeans with k=12 and n_init="auto" gives us directly interpretable centroids, or the average player for each type. This gives us a stable baseline to use for consensus. 
+ KMeans with $k=12$ and `n_init="auto"` gives us directly interpretable centroids, or the average player for each type. This gives us a stable baseline to use for consensus. 
 
 
  ### 3.4: Co-Association Matrix Consensus
@@ -348,7 +348,7 @@ flowchart TD
 
 
 The consensus labels are obtained by clustering the distance matrix 𝐷=1−𝐶 , with agglomerative clustering (average linkage, precomputed metric). Players whose average co-association with their own cluster is below
-min_consensu= 0.5 are labeled as hybrid or transitional (-1). These players are outliers, that are between archetypes. 
+`min_consensus=0.5` are labeled as hybrid or transitional ($-1$). These players are outliers, that are between archetypes. 
 
 
 
@@ -364,15 +364,15 @@ where $\mu_{f,c} = \frac{1}{|C|}\sum_{p \in C} f_p$ is the cluster mean for feat
 
 
 (Feature, Direction)	Label
-(pts_per_game, high)	"High-Volume Scorer"
-(ast_per_game, high)	"Floor General"
-(blk_percent, high)	"Rim Protector"
-(x3p_percent, high)	"Sharpshooter"
-(stl_percent, high)	"Ball Hawk"
-(orb_percent, high)	"Offensive Rebounder"
-(trb_percent, high)	"Glass Cleaner"
-(usg_percent, high)	"High-Usage"
-(x3p_ar, low)	"Paint-Focused"
+(`pts_per_game`, high)	"High-Volume Scorer"
+(`ast_per_game`, high)	"Floor General"
+(`blk_percent`, high)	"Rim Protector"
+(`x3p_percent`, high)	"Sharpshooter"
+(`stl_percent`, high)	"Ball Hawk"
+(`orb_percent`, high)	"Offensive Rebounder"
+(`trb_percent`, high)	"Glass Cleaner"
+(`usg_percent`, high)	"High-Usage"
+(`x3p_ar`, low)	"Paint-Focused"
 ...	(120+ (feature, direction) pairs)
 
 
@@ -474,7 +474,7 @@ $$
 $$
 
 
-The index uses faiss.METRIC_INNER_PRODUCT with IndexHNSWFlat for approximate nearest neighbor search. HNSW (Hierarchical Navigable Small World) builds a multi-layer graph:
+The index uses `faiss.METRIC_INNER_PRODUCT` with `IndexHNSWFlat` for approximate nearest neighbor search. HNSW (Hierarchical Navigable Small World) builds a multi-layer graph:
 
 ```mermaid
 flowchart TD
@@ -544,7 +544,7 @@ $$
 \text{contrib}_i = \frac{\hat{v}_{q,i} \cdot \hat{v}_{c,i}}{\cos(\hat{\mathbf{v}}_q, \hat{\mathbf{v}}_c)}
 $$
 
-The top 5 features by absolute contribution are returned as an explanation (e.g. "Player X is similar to Player Y because both have high usg_percent, positive bpm, and elite stl_percent."). Each block's contribution is aggregated:
+The top 5 features by absolute contribution are returned as an explanation (e.g. "Player X is similar to Player Y because both have high `usg_percent`, positive `bpm`, and elite `stl_percent`."). Each block's contribution is aggregated:
 
 $$
 \text{contrib}_b = \frac{\sum_{i \in \text{block}_b} \hat{v}_{q,i} \cdot \hat{v}_{c,i}}{\cos(\hat{\mathbf{v}}_q, \hat{\mathbf{v}}_c)}
