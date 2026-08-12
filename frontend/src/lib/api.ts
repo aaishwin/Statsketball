@@ -12,10 +12,16 @@ import type {
   PlayerGraph,
 } from "./types";
 
-// Always use relative path so browser requests go through the Next.js
-// rewrite proxy (configured in next.config.ts), which forwards /api/v1/*
-// to the backend. This avoids CORS issues entirely.
-const API_BASE = "/api/v1";
+// API origin resolution:
+// - If NEXT_PUBLIC_API_URL is set at build time (production), call the
+//   backend directly and rely on CORS. Netlify's Next.js runtime does not
+//   apply next.config.ts rewrites to external URLs, so the same-origin
+//   proxy cannot be relied on there.
+// - Otherwise (local dev), use the relative path through the next dev
+//   rewrite to http://localhost:8000.
+const API_BASE = process.env.NEXT_PUBLIC_API_URL
+  ? `${process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, "")}/api/v1`
+  : "/api/v1";
 
 class ApiClientError extends Error {
   status: number;
