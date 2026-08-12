@@ -1,0 +1,14 @@
+# CDN-level proxy for the FastAPI/FAISS backend.
+#
+# Netlify's Next.js runtime does not apply next.config.ts rewrites for
+# external URLs, so /api/v1/* must be proxied at the CDN level instead.
+# `status = 200` + `force = true` is a transparent force-proxy rewrite:
+# the browser stays on the same origin and no CORS is involved.
+#
+# Kept in sync with frontend/netlify.toml to cover both possible base
+# directory configurations.
+[[redirects]]
+  from = "/api/v1/*"
+  to = "https://statsketball-api.onrender.com/api/v1/:splat"
+  status = 200
+  force = true
