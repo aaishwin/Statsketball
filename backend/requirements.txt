@@ -1,0 +1,23 @@
+pandas==3.0.1
+numpy==2.4.6
+scikit-learn==1.9.0
+umap-learn==0.5.12
+hdbscan==0.8.44
+plotly==6.8.0
+pydantic==2.12.5
+tqdm==4.68.3
+scipy==1.17.1
+# FAISS similarity search
+faiss-cpu==1.14.3
+# FastAPI server
+fastapi==0.135.1
+uvicorn[standard]==0.41.0
+# Caching
+cachetools==6.2.6
+# Rate limiting (Phase 4 security hardening)
+slowapi==0.1.9
+# Scrapy + Playwright for scraping NBA.com player headshots
+scrapy==2.17.0
+scrapy-playwright==0.0.48
+
+

@@ -1,0 +1,142 @@
+{
+  "algorithm": "Player Consensus",
+  "silhouette_cosine": -0.006513439453731636,
+  "davies_bouldin": 2.11534929582001,
+  "n_clusters_valid": 12,
+  "cluster_sizes": {
+    "0": 141,
+    "1": 82,
+    "2": 183,
+    "3": 220,
+    "4": 172,
+    "5": 149,
+    "6": 129,
+    "7": 294,
+    "8": 176,
+    "9": 56,
+    "10": 73,
+    "11": 30
+  },
+  "min_cluster_size": 30,
+  "max_cluster_size": 294,
+  "size_imbalance_ratio": 9.8,
+  "n_noise": 85,
+  "noise_pct": 0.04748603351955307,
+  "temporal_stability": {
+    "consecutive_season_pairs": 0,
+    "stable_transitions": 0,
+    "pct_stable": 0
+  },
+  "era_distribution": {
+    "0": {
+      "Dead-Ball": 54,
+      "Expansion-90s": 48,
+      "Modern": 21,
+      "Early-3PT": 11,
+      "Post-COVID": 7
+    },
+    "1": {
+      "Dead-Ball": 29,
+      "Modern": 26,
+      "Expansion-90s": 16,
+      "Post-COVID": 9,
+      "Early-3PT": 2
+    },
+    "2": {
+      "Dead-Ball": 52,
+      "Modern": 49,
+      "Expansion-90s": 25,
+      "Early-3PT": 21,
+      "Post-COVID": 19,
+      "Pre-3PT": 17
+    },
+    "3": {
+      "Dead-Ball": 53,
+      "Expansion-90s": 50,
+      "Early-3PT": 40,
+      "Modern": 40,
+      "Pre-3PT": 24,
+      "Post-COVID": 13
+    },
+    "4": {
+      "Pre-3PT": 63,
+      "Early-3PT": 49,
+      "Modern": 21,
+      "Dead-Ball": 17,
+      "Expansion-90s": 14,
+      "Post-COVID": 8
+    },
+    "5": {
+      "Pre-3PT": 37,
+      "Expansion-90s": 30,
+      "Early-3PT": 29,
+      "Dead-Ball": 25,
+      "Modern": 17,
+      "Post-COVID": 11
+    },
+    "6": {
+      "Dead-Ball": 33,
+      "Expansion-90s": 29,
+      "Early-3PT": 24,
+      "Pre-3PT": 20,
+      "Modern": 16,
+      "Post-COVID": 7
+    },
+    "7": {
+      "Early-3PT": 76,
+      "Pre-3PT": 56,
+      "Dead-Ball": 51,
+      "Modern": 46,
+      "Expansion-90s": 40,
+      "Post-COVID": 25
+    },
+    "8": {
+      "Dead-Ball": 50,
+      "Expansion-90s": 40,
+      "Modern": 35,
+      "Early-3PT": 23,
+      "Post-COVID": 15,
+      "Pre-3PT": 13
+    },
+    "9": {
+      "Dead-Ball": 16,
+      "Modern": 13,
+      "Expansion-90s": 10,
+      "Early-3PT": 10,
+      "Post-COVID": 6,
+      "Pre-3PT": 1
+    },
+    "10": {
+      "Dead-Ball": 32,
+      "Expansion-90s": 16,
+      "Modern": 13,
+      "Early-3PT": 6,
+      "Post-COVID": 5,
+      "Pre-3PT": 1
+    },
+    "11": {
+      "Modern": 7,
+      "Expansion-90s": 7,
+      "Early-3PT": 6,
+      "Dead-Ball": 5,
+      "Pre-3PT": 4,
+      "Post-COVID": 1
+    }
+  },
+  "hof_diversity": {
+    "n_hof_players": 97,
+    "n_clusters_with_hof": 9,
+    "hof_distribution": {
+      "6": 24,
+      "9": 22,
+      "5": 22,
+      "11": 15,
+      "3": 3,
+      "4": 3,
+      "8": 2,
+      "1": 2,
+      "7": 1
+    },
+    "healthy": true
+  }
+}
