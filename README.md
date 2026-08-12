@@ -246,7 +246,7 @@ This low dimensional embedding $\{y_i\}$ is optimized using cross-entropy betwee
 \mathcal{L}_{\text{UMAP}} = \sum_{i \neq j} \left[\mu_{ij} \log\frac{\mu_{ij}}{\nu_{ij}} + (1 - \mu_{ij}) \log\frac{1 - \mu_{ij}}{1 - \nu_{ij}}\right]
 ```
 
-where $\nu_{ij} = \left(1 + a\|y_i - y_j\|^{2b}\right)^{-1}$ is a Student-t kernel approximating the indicator $\mathbb{1}_{\|y_i - y_j\| \leq \text{min\_dist}}$.
+where $\nu_{ij} = \left(1 + a\|y_i - y_j\|^{2b}\right)^{-1}$ is a Student-t kernel approximating the indicator $`\mathbb{1}_{\|y_i - y_j\| \leq \text{min\_dist}}`$.
 
 Key parameters: `n_neighbors=15` (balances local/global structure), `min_dist=0.1` (avoids point collapse), `metric="cosine"` (emphasizes directional similarity — style direction over magnitude). Cosine distance on PCA space is:
 
@@ -269,9 +269,9 @@ HDBSCAN creates a mutual reachability graph:
 d_{\text{mreach},k}(\mathbf{x}_p, \mathbf{x}_q) = \max\{\text{core}_k(\mathbf{x}_p), \text{core}_k(\mathbf{x}_q), d(\mathbf{x}_p, \mathbf{x}_q)\}
 ```
 
-where $\text{core}_k(\mathbf{x})$ is the distance to the $k$-th nearest neighbour (here $k = \text{min\_samples} = 3$).
+where $\text{core}_k(\mathbf{x})$ is the distance to the $k$-th nearest neighbour (here $`k = \text{min\_samples} = 3`$).
 A minimum spanning tree is built using this graph, and a cluster hierarchy is created by removing edges by weight, in descending order.
-Clusters are then extracted using the leaf selection method, with $\text{min\_cluster\_size} = 25$ (~1.4% of all players):
+Clusters are then extracted using the leaf selection method, with $`\text{min\_cluster\_size} = 25`$ (~1.4% of all players):
 
 ```math
 \mathcal{C}_{\text{HDBSCAN}} = \{\mathbf{x}_i : \lambda_{\text{birth}}(\mathbf{x}_i) - \lambda_{\text{death}}(\mathbf{x}_i) \geq \text{threshold}\}
@@ -304,7 +304,7 @@ where $\bar{\mathbf{x}}_A$, $\bar{\mathbf{x}}_B$ are centroids of clusters $A$ a
 \arg\min_{\mathcal{C}} \sum_{i=1}^{k} \sum_{\mathbf{x} \in C_i} \|\mathbf{x} - \boldsymbol{\mu}_i\|^2
 ```
 
-where $\boldsymbol{\mu}_i = \frac{1}{|C_i|}\sum_{\mathbf{x} \in C_i} \mathbf{x}$ is the centroid of cluster $i$. 
+where $`\boldsymbol{\mu}_i = \frac{1}{|C_i|}\sum_{\mathbf{x} \in C_i} \mathbf{x}`$ is the centroid of cluster $i$. 
 
  KMeans with $k=12$ and `n_init="auto"` gives us directly interpretable centroids, or the average player for each type. This gives us a stable baseline to use for consensus. 
 
