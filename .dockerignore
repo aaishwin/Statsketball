@@ -1,7 +1,7 @@
 # Keep the build context small (frontend has 1.9GB of node_modules)
-frontend/
-tests/
-docs/
+src/frontend/
+src/backend/tests/
+src/backend/docs/
 .git/
 
 # Raw Kaggle CSVs — not needed for serving

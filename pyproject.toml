@@ -1,0 +1,4 @@
+# Vercel Python entrypoint — the FastAPI app lives in the backend's
+# src layout (src/backend/main.py, variable: app).
+[tool.vercel]
+entrypoint = "src.backend.main:app"
