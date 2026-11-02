@@ -53,8 +53,8 @@ const transformOrigin: Record<Side, string> = {
   right: "left center",
 };
 
-// Offset is in the direction *away* from the trigger — content originates near
-// the trigger and rises into resting position.
+// Offset is in the direction *away* from the trigger. content originates near
+// the trigger and rises into the resting position.
 const offsetFrom: Record<Side, { x?: number; y?: number }> = {
   top: { y: 8 },
   bottom: { y: -8 },

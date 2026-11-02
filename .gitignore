@@ -59,12 +59,14 @@ Thumbs.db
 *.swo
 *~
 
+/backend/docs
 
 
 DESIGN.md
 PRODUCT.md
 DESIGN.md
 PRODUCT.md
+
 
 # ── Deployment artifacts — re-included so the API Docker image can be built
 # from a git clone (Render/Netlify build servers don't have local files).
@@ -79,3 +81,4 @@ PRODUCT.md
 !/output_players/players_with_archetypes.csv
 !/output_players/cluster_profiles.json
 !backend/data/nba_player_headshots.json
+
