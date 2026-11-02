@@ -8,7 +8,7 @@ Reuses clustering, similarity, evaluation, and dimensionality modules from
 the team pipeline; shared caching/profile helpers live in pipeline_common.
 
 Usage:
-    from app.clustering.player_pipeline import run_player_pipeline, get_similar_players
+    from src.backend.clustering.player_pipeline import run_player_pipeline, get_similar_players
 
     result = run_player_pipeline(data_dir="data/nba-aba-baa-stats/versions/56")
     similar = get_similar_players(result, "LeBron James")

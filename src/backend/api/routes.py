@@ -486,8 +486,8 @@ async def get_headshot_map():
 
     The frontend fetches this once at app load and caches it client-side
     for synchronous avatar lookups. The mapping is produced by the
-    Scrapy-Playwright spider (see ``backend/app/scraping/``) and stored
-    as ``backend/data/nba_player_headshots.json``.
+    Scrapy-Playwright spider (see ``src/backend/scraping/``) and stored
+    as ``src/backend/data/nba_player_headshots.json``.
     """
     from .headshot_store import get_store
 

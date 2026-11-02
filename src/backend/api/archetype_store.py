@@ -28,7 +28,7 @@ from typing import Final
 
 logger = logging.getLogger(__name__)
 
-# backend/app/api/archetype_store.py -> workspace root is 3 parents up from app/
+# src/backend/api/archetype_store.py -> workspace root is 3 parents up from app/
 _WORKSPACE_ROOT: Final[Path] = Path(__file__).resolve().parents[3]
 
 _CSV_NAME: Final[str] = "players_with_archetypes.csv"

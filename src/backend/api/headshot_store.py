@@ -3,7 +3,7 @@ Headshot Data Store
 ===================
 Read-only store for the NBA player headshot URL mapping.
 
-Loads ``backend/data/nba_player_headshots.json`` (produced by the
+Loads ``src/backend/data/nba_player_headshots.json`` (produced by the
 Scrapy-Playwright spider) lazily on first access and caches it for the
 process lifetime. The file only changes when the spider is re-run
 manually, which requires an API restart anyway.
@@ -32,11 +32,11 @@ from ..scraping.url_allowlist import is_allowed_headshot_url
 
 logger = logging.getLogger(__name__)
 
-# backend/app/api/headshot_store.py -> workspace root is 3 parents up
+# src/backend/api/headshot_store.py -> workspace root is 3 parents up
 _WORKSPACE_ROOT: Final[Path] = Path(__file__).resolve().parents[3]
 
 _JSON_NAME: Final[str] = "nba_player_headshots.json"
-_JSON_DIR: Final[Path] = _WORKSPACE_ROOT / "backend" / "data"
+_JSON_DIR: Final[Path] = _WORKSPACE_ROOT / "src" / "backend" / "data"
 
 
 def _normalize_name(name: str) -> str:

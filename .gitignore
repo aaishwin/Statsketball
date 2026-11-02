@@ -37,7 +37,7 @@ env/
 *.complete
 *.parquet
 *.feather
-backend/data/nba_player_headshots.json
+src/backend/data/nba_player_headshots.json
 
 
 
@@ -59,7 +59,7 @@ Thumbs.db
 *.swo
 *~
 
-/backend/docs
+/src/backend/docs
 
 
 DESIGN.md
@@ -80,5 +80,5 @@ PRODUCT.md
 /output_players/*
 !/output_players/players_with_archetypes.csv
 !/output_players/cluster_profiles.json
-!backend/data/nba_player_headshots.json
+!src/backend/data/nba_player_headshots.json
 

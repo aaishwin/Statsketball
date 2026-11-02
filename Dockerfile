@@ -16,13 +16,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 COPY requirements-api.txt .
 RUN pip install --no-cache-dir -r requirements-api.txt
 
-COPY backend/app ./app
+COPY src/backend ./src/backend
 COPY faiss_output ./faiss_output
 COPY output_players/players_with_archetypes.csv ./output_players/
 COPY output_players/cluster_profiles.json ./output_players/
-COPY backend/data/nba_player_headshots.json ./data/
+COPY src/backend/data/nba_player_headshots.json ./data/
 
 EXPOSE 8000
 # Shell form so ${PORT} expands (Render sets PORT=10000 for Docker services;
 # defaults to 8000 for local runs / Fly).
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+CMD uvicorn src.backend.main:app --host 0.0.0.0 --port ${PORT:-8000}
