@@ -444,7 +444,7 @@ def resolve_and_validate(
     # validation types at module load).
     from .schema_definitions import validate_all_csvs
 
-    print("\n🔍 Validating CSV schemas...")
+    print("\nValidating CSV schemas...")
     csv_report = validate_all_csvs(resolved, schemas)
     if not csv_report.all_valid:
         raise CSVSchemaError("CSV schema validation failed — see details above.")
