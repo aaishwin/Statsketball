@@ -1,5 +1,12 @@
 # Statsketball
 
+
+## Access Statsketball using this link here: https://statsketballl.netlify.app/
+
+(It may take a while for the site to load, as I am hosting this on a free tier.)
+
+
+
 ## General Overview
 Statsketball is an application that takes NBA players, and maps them to certain archetypes to determine which players are the most similar, and attempt to determine this beyond box scores and regular stats. 
 
